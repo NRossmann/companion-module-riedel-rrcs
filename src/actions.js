@@ -592,6 +592,64 @@ export default async function (self) {
 			)
 		},
 	}
+	actionDefs['keyColor'] = {
+		name: 'Key - Set Color',
+		options: [
+			options.fromList,
+			{
+				...options.addrList,
+				choices: self.rrcs.choices.ports.local.panels,
+				default: localPortObjectID,
+			},
+			{ ...options.portAddr, default: localPortAddr },
+			options.isInput,
+			options.page,
+			options.expPanel,
+			options.keyNumber,
+			options.keyUsePanelDefaultColor,
+			options.keyColorRed,
+			options.keyColorGreen,
+			options.keyColorBlue,
+		],
+		callback: async ({ options }, context) => {
+			const addr = options.fromList
+				? self.getPortAddressFromObjectID(options.addrList)
+				: self.calcPortAddress(await context.parseVariablesInString(options.portAddr))
+			const isInput = options.fromList ? addr.isInput : options.isInput
+			const page = parseInt(await context.parseVariablesInString(options.page))
+			const expPanel = parseInt(await context.parseVariablesInString(options.expPanel))
+			const key = parseInt(await context.parseVariablesInString(options.keyNumber))
+			const red = parseInt(await context.parseVariablesInString(options.keyColorRed))
+			const green = parseInt(await context.parseVariablesInString(options.keyColorGreen))
+			const blue = parseInt(await context.parseVariablesInString(options.keyColorBlue))
+			if (
+				addr === undefined ||
+				isNaN(page) ||
+				isNaN(expPanel) ||
+				isNaN(key) ||
+				(!options.keyUsePanelDefaultColor && (isNaN(red) || isNaN(green) || isNaN(blue)))
+			) {
+				if (self.config.verbose) {
+					self.log(
+						'debug',
+						`invalid args supplied to keyColor ${options.fromList ? options.addrList : options.portAddr} ${options.page} ${options.expPanel} ${options.keyNumber} ${options.keyColorRed}/${options.keyColorGreen}/${options.keyColorBlue}`,
+					)
+				}
+				return undefined
+			}
+			await self.setKeyColor(
+				addr,
+				isInput,
+				page,
+				expPanel,
+				key,
+				options.keyUsePanelDefaultColor,
+				red,
+				green,
+				blue,
+			)
+		},
+	}
 	actionDefs['portClone'] = {
 		name: 'Port - Clone',
 		options: [

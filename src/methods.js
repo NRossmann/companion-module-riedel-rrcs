@@ -410,6 +410,12 @@ export const rrcsMethods = {
 			description:
 				'Sets a marker above the key. {Marker} is the index of the marker in the configuration. See the net properties dialog in Director.',
 		},
+		setKeyColor: {
+			rpc: 'ConfigurationChangeEx',
+			name: 'Key - Set Color',
+			description:
+				'Sets the panel key text color through ConfigurationChangeEx using the panel-key object type and NewProperties.TextColor.',
+		},
 	},
 	portClone: {
 		start: {

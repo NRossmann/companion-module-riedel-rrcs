@@ -492,6 +492,49 @@ export const options = {
 		label: 'Lock',
 		default: false,
 	},
+	keyUsePanelDefaultColor: {
+		id: 'keyUsePanelDefaultColor',
+		type: 'checkbox',
+		label: 'Use Panel Default Color',
+		default: false,
+		tooltip: 'When enabled, RRCS uses the panel default color and ignores the RGB values below.',
+	},
+	keyColorRed: {
+		id: 'keyColorRed',
+		type: 'textinput',
+		label: 'Red',
+		default: '255',
+		useVariables: { local: true },
+		regex: Regex.SOMETHING,
+		tooltip: 'RGB value from 0 to 255.',
+		isVisible: (options) => {
+			return !options.keyUsePanelDefaultColor
+		},
+	},
+	keyColorGreen: {
+		id: 'keyColorGreen',
+		type: 'textinput',
+		label: 'Green',
+		default: '0',
+		useVariables: { local: true },
+		regex: Regex.SOMETHING,
+		tooltip: 'RGB value from 0 to 255.',
+		isVisible: (options) => {
+			return !options.keyUsePanelDefaultColor
+		},
+	},
+	keyColorBlue: {
+		id: 'keyColorBlue',
+		type: 'textinput',
+		label: 'Blue',
+		default: '0',
+		useVariables: { local: true },
+		regex: Regex.SOMETHING,
+		tooltip: 'RGB value from 0 to 255.',
+		isVisible: (options) => {
+			return !options.keyUsePanelDefaultColor
+		},
+	},
 	cloneMethod: {
 		id: 'cloneMethod',
 		type: 'dropdown',

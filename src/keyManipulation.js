@@ -1,5 +1,11 @@
 import { rrcsMethods } from './methods.js'
-import { rrcsErrorCodes } from './errorcodes.js'
+import { configChangeExErrorCodes, rrcsErrorCodes } from './errorcodes.js'
+
+function clampColor(value) {
+	const num = Number(value)
+	if (isNaN(num)) return undefined
+	return Math.max(0, Math.min(255, Math.round(num)))
+}
 
 export async function pressKey(address, isInput, page, expPanel, keyNumber, isVirtual, press, trigger, pool) {
 	const keys = Object.keys(address)
@@ -139,6 +145,57 @@ export async function lockKey(address, isInput, page, expPanel, keyNumber, isVir
 			} else {
 				return response[2]
 			}
+		})
+	}
+}
+
+export async function setKeyColor(address, isInput, page, expPanel, keyNumber, panelDefault, red, green, blue) {
+	if (isNaN(page) || page < 0 || isNaN(expPanel) || expPanel < 0 || isNaN(keyNumber) || keyNumber < 1) {
+		this.log('warn', `invalid arguments supplied to setKeyColor`)
+		return undefined
+	}
+	const keys = Object.keys(address)
+	const cleanRed = clampColor(red)
+	const cleanGreen = clampColor(green)
+	const cleanBlue = clampColor(blue)
+	if (!panelDefault && (cleanRed === undefined || cleanGreen === undefined || cleanBlue === undefined)) {
+		this.log('warn', `setKeyColor invalid RGB values ${red}/${green}/${blue}`)
+		return undefined
+	}
+	if (keys.includes('node') && keys.includes('port')) {
+		const args = {
+			ChangeType: rrcsMethods.configuration.configurationChangeEx.changeType.edit.id,
+			ObjectType: rrcsMethods.configuration.configurationChangeEx.objectType.panelKey.id,
+			SpecificParams: {
+				Node: address.node,
+				Port: address.port,
+				ExpansionPanel: expPanel,
+				Page: page,
+				KeyNumber: keyNumber,
+				IsInput: !!isInput,
+				NewProperties: {
+					TextColor: {
+						PanelDefault: !!panelDefault,
+						Red: panelDefault ? 0 : cleanRed,
+						Green: panelDefault ? 0 : cleanGreen,
+						Blue: panelDefault ? 0 : cleanBlue,
+					},
+				},
+			},
+		}
+		return await this.rrcsQueue.add(async () => {
+			const response = await this.rrcsMethodCall(rrcsMethods.configuration.configurationChangeEx.rpc, [[args]])
+			if (response === undefined) {
+				return
+			}
+			if (this.config.verbose) {
+				this.log('debug', `setKeyColor: \n${JSON.stringify(response)}`)
+			}
+			if (response.ErrorCode !== undefined && response.ErrorCode !== 0) {
+				this.log('warn', `setKeyColor: ${configChangeExErrorCodes[response.ErrorCode] ?? response.ErrorCode}`)
+				return undefined
+			}
+			return response
 		})
 	}
 }

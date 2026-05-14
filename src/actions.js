@@ -614,7 +614,7 @@ export default async function (self) {
 		callback: async ({ options }, context) => {
 			const addr = options.fromList
 				? self.getPortAddressFromObjectID(options.addrList)
-				: self.calcPortAddress(await context.parseVariablesInString(options.portAddr))
+				: self.calcGpioAddress(await context.parseVariablesInString(options.portAddr))
 			const isInput = options.fromList ? addr.isInput : options.isInput
 			const page = parseInt(await context.parseVariablesInString(options.page))
 			const expPanel = parseInt(await context.parseVariablesInString(options.expPanel))
